@@ -1,0 +1,50 @@
+diff -u jpegls-hdf-filter-v0.2.orig/h5jpegls.cc jpegls-hdf-filter-v0.2/h5jpegls.cc
+--- jpegls-hdf-filter-v0.2.orig/h5jpegls.cc	2016-08-23 12:08:30.000000000 +0200
++++ jpegls-hdf-filter-v0.2/h5jpegls.cc	2020-03-27 17:03:14.975355996 +0100
+@@ -10,7 +10,7 @@
+ #include <iostream>
+ #include <vector>
+ 
+-#include "charls.h"
++#include <CharLS/charls.h>
+ 
+ #include "threadpool.h"
+ ThreadPool* filter_pool = nullptr;
+@@ -93,7 +93,7 @@
+                         errMsg
+                     );
+                     if (ret != CharlsApiResultType::OK) {
+-                        fprintf(stderr, "JPEG-LS error %d: %s\n", ret, errMsg);
++		        fprintf(stderr, "JPEG-LS error %d: %s\n", static_cast<int>(ret), errMsg);
+                     }
+                 })
+             );
+Only in jpegls-hdf-filter-v0.2: h5jpegls.o
+Only in jpegls-hdf-filter-v0.2: libh5jpegls.so
+Only in jpegls-hdf-filter-v0.2: libh5jpegls.so.0
+Only in jpegls-hdf-filter-v0.2: libh5jpegls.so.0.2
+diff -u jpegls-hdf-filter-v0.2.orig/Makefile jpegls-hdf-filter-v0.2/Makefile
+--- jpegls-hdf-filter-v0.2.orig/Makefile	2016-08-18 17:48:24.000000000 +0200
++++ jpegls-hdf-filter-v0.2/Makefile	2020-03-27 16:51:28.050599000 +0100
+@@ -1,6 +1,5 @@
+-OPTS=-march=native -O3 -g -W -Wall -std=c++11 -fPIC -shared -DNDEBUG -DNO_DEBUG 
+-INCLUDES=-I. -Icharls/src
+-LIBJPEGLS_PATH=charls/build
++OPTS=-march=native -O3 -g -W -Wall -std=c++14 -fPIC -shared -DNDEBUG -DNO_DEBUG 
++INCLUDES=-I.
+ 
+ MAJOR = 0
+ MINOR = 2
+@@ -14,10 +13,9 @@
+ lib: lib$(NAME1).so.$(VERSION)
+ 
+ lib$(NAME1).so.$(VERSION): $(NAME1).o
+-	$(CXX) $(OPTS) $^ -L$(LIBJPEGLS_PATH) -Wl,-rpath=$(shell readlink -e $(LIBJPEGLS_PATH)) -lpthread -lhdf5 -lCharLS -o $@
++	$(CXX) $(OPTS) $^ -lpthread -lhdf5 -lCharLS -o $@
+ 	ln -sf lib$(NAME1).so.$(VERSION) lib$(NAME1).so
+ 	ln -sf lib$(NAME1).so.$(VERSION) lib$(NAME1).so.$(MAJOR)
+-                                
+-    
++
+ clean:
+ 	rm -f $(CCSDS_OBJS) $(NAME1).o lib$(NAME1).so*
